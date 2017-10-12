@@ -1,9 +1,14 @@
 package edu.upc.eseiaat.pma.countrylist;
 
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,5 +26,37 @@ public class CountryListActivity extends AppCompatActivity {
         //Todos los listViews tienen un adaptador
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, country_list);
         list.setAdapter(adapter);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View item, int pos, long id) {
+                Toast.makeText(CountryListActivity.this,
+                        String.format("Has escogido '%s'", country_list.get(pos)),
+                        Toast.LENGTH_LONG)
+                        .show();
+            }
+        });
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View item,final int pos, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(CountryListActivity.this);
+                builder.setTitle(R.string.confirm);
+                String msg = getResources().getString(R.string.confirm_message);
+                builder.setMessage(msg+ " " + country_list.get(pos) +"?");
+                builder.setPositiveButton(R.string.erase, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        country_list.remove(pos);
+                        //Para que el adaptador se entere de que se han
+                        //cambiado los datos
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+                builder.setNegativeButton(android.R.string.cancel, null);
+                builder.create();
+                builder.show();
+
+                return true;
+            }
+        });
     }
 }
